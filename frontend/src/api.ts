@@ -44,3 +44,12 @@ export const getFavorites = async () => {
   const res = await axios.get(`${BASE_URL}/get_favorites`);
   return res.data.favorites;
 };
+
+export const removeFavorite = async (id: string) => {
+  try {
+    await axios.delete(`${BASE_URL}/delete_favorite/${id}`);
+  } catch (err: any) {
+    console.error("removeFavorite error", err?.response?.data || err.message || err);
+    throw err;
+  }
+};

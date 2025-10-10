@@ -42,7 +42,7 @@ def _extract_json(text: str):
 def generate_recipe(ingredients):
     prompt = f"""
     You are an AI chef assistant. Based on these ingredients: {', '.join(ingredients)},
-    suggest 2–3 recipes in JSON format with the following fields:
+    suggest 4-5 recipes in JSON format with the following fields:
     - name
     - ingredients
     - steps

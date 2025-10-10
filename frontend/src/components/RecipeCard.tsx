@@ -1,70 +1,188 @@
-import React from "react";
-import { saveFavorite } from "../api";
+import React, { useState, useEffect } from "react"; // Import useEffect
+import { saveFavorite, removeFavorite } from "../api";
+import { FiClock, FiList, FiMenu, FiChevronDown, FiChevronUp, FiHeart, FiCopy, FiTrash2, FiSave, FiStar, FiRefreshCcw, FiCheckCircle } from "react-icons/fi";
 
 type Recipe = {
+  _id?: string; // Present if it's a saved favorite
   name: string;
   ingredients: string[];
   steps: string | string[];
   time?: string | number;
+  imageUrl?: string;
 };
 
 interface Props {
   recipe: Recipe;
+  onRemove?: (id: string) => void;
+  // Optional prop to indicate if the recipe is already a favorite from a parent component (e.g., FavoritesPage)
+  // This is crucial for initial state if the card is used outside of the FavoritesPage
+  isInitiallyFavorited?: boolean;
 }
 
-const RecipeCard: React.FC<Props> = ({ recipe }) => {
+const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = false }) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  // New state to track if the recipe has been saved in the current session
+  const [hasBeenSaved, setHasBeenSaved] = useState(isInitiallyFavorited || !!recipe._id);
+
+  // Use useEffect to update hasBeenSaved if the recipe._id changes (e.g., after a successful save)
+  useEffect(() => {
+    setHasBeenSaved(isInitiallyFavorited || !!recipe._id);
+  }, [recipe._id, isInitiallyFavorited]);
+
+
   const handleSave = async () => {
+    if (hasBeenSaved || isSaving) return; // Prevent multiple saves or clicking while saving
+    setIsSaving(true);
     try {
       await saveFavorite(recipe);
-      alert("Saved to favorites ❤️");
+      setHasBeenSaved(true); // Mark as saved successfully
+      alert("Recipe saved to your favorites!");
     } catch (err) {
-      alert("Failed to save favorite");
+      console.error("Failed to save favorite:", err);
+      alert("Failed to save recipe to favorites. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!recipe._id || isRemoving) return; // Prevent multiple removes or clicking while removing
+    setIsRemoving(true);
+    try {
+      await removeFavorite(recipe._id);
+      setHasBeenSaved(false); // Mark as unsaved
+      onRemove && onRemove(recipe._id); // Inform parent to update UI
+      alert("Recipe removed from favorites!");
+    } catch (e) {
+      console.error("Failed to remove favorite:", e);
+      alert("Failed to remove recipe from favorites. Please try again.");
+    } finally {
+      setIsRemoving(false);
     }
   };
 
   const handleCopy = async () => {
     try {
-      const text = `${recipe.name}\n\nIngredients:\n${recipe.ingredients.join("\n")}\n\nSteps:\n${Array.isArray(recipe.steps) ? recipe.steps.join("\n") : recipe.steps}`;
+      const formattedSteps = Array.isArray(recipe.steps)
+        ? recipe.steps.map((s, idx) => `${idx + 1}. ${s}`).join("\n")
+        : recipe.steps;
+
+      const text = `${recipe.name}\n\nPreparation & Cook Time: ${recipe.time ?? 'N/A'}\n\nIngredients:\n${recipe.ingredients.join("\n")}\n\nInstructions:\n${formattedSteps}`;
       await navigator.clipboard.writeText(text);
-      alert("Copied recipe to clipboard");
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
     } catch (e) {
-      alert("Clipboard not available");
+      console.error("Clipboard not available or failed to copy:", e);
+      alert("Failed to copy recipe to clipboard. Please try again.");
     }
   };
 
-  const timeLabel = recipe.time ? `⏱ ${recipe.time} min` : "";
+  const displayTime = typeof recipe.time === 'number' ? `${recipe.time} min` : (recipe.time || 'N/A');
 
   return (
-    <article className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-      <div className="flex justify-between items-start gap-4">
-        <div>
-          <h3 className="text-lg font-semibold">{recipe.name}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{timeLabel}</p>
+    <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700">
+      <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        {/* Recipe Image (Optional) */}
+        {recipe.imageUrl && (
+          <div className="flex-shrink-0 w-full sm:w-40 h-40 rounded-xl overflow-hidden shadow-md">
+            <img
+              src={recipe.imageUrl}
+              alt={recipe.name}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+        )}
+
+        {/* Recipe Title and Time */}
+        <div className="flex-grow">
+          <h3 className="text-3xl font-extrabold text-purple-700 dark:text-purple-400">
+            {recipe.name}
+          </h3>
+          <p className="flex items-center text-gray-600 dark:text-gray-300 mt-2 text-md">
+            <FiClock className="mr-2 text-lg" />
+            <span>Preparation & Cook Time: <span className="font-semibold">{displayTime}</span></span>
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={handleCopy} title="Copy" className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm">Copy</button>
-          <button onClick={handleSave} title="Save" className="px-3 py-1 bg-purple-600 text-white rounded-md text-sm">Save</button>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 ml-auto">
+          {/* Copy Button */}
+          <button
+            onClick={handleCopy}
+            title="Copy Recipe"
+            className={`px-4 py-2 rounded-full font-medium shadow-sm transition-all duration-200 flex items-center gap-2 ${
+              isCopied
+                ? "bg-green-500 text-white cursor-not-allowed"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+            disabled={isCopied}
+          >
+            {isCopied ? <FiCheckCircle /> : <FiCopy />} {isCopied ? "Copied!" : "Copy"}
+          </button>
+
+          {/* Save/Remove Button */}
+          {recipe._id || hasBeenSaved ? ( // If recipe has an _id OR has been saved in this session, show Remove/Saved
+            <button
+              onClick={handleRemove}
+              title="Remove from Favorites"
+              className="px-4 py-2 bg-red-600 text-white rounded-full font-medium shadow-sm hover:bg-red-700 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
+              disabled={isRemoving || !recipe._id} // Disable remove if currently removing or no _id (not truly saved)
+            >
+              {isRemoving ? <FiRefreshCcw className="animate-spin" /> : <FiTrash2 />} {isRemoving ? "Removing..." : "Remove"}
+            </button>
+          ) : ( // Otherwise, show Save
+            <button
+              onClick={handleSave}
+              title="Save to Favorites"
+              className="px-4 py-2 bg-purple-600 text-white rounded-full font-medium shadow-sm hover:bg-purple-700 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
+              disabled={isSaving || hasBeenSaved} // Disable save if currently saving or already saved
+            >
+              {isSaving ? <FiRefreshCcw className="animate-spin" /> : <FiSave />} {isSaving ? "Saving..." : "Save"}
+            </button>
+          )}
         </div>
+
+        {/* Expand/Collapse Button */}
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="ml-0 mt-4 sm:mt-0 sm:ml-4 p-3 rounded-full bg-purple-100 dark:bg-gray-700 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-sm"
+          aria-expanded={showDetails}
+          aria-controls={`recipe-details-${recipe.name.replace(/\s/g, '-')}`}
+        >
+          {showDetails ? <FiChevronUp size={24} /> : <FiChevronDown size={24} />}
+        </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h4 className="text-sm font-medium">Ingredients</h4>
-          <ul className="mt-2 list-disc list-inside text-sm text-gray-700 dark:text-gray-300">
-            {recipe.ingredients.map((ing, i) => (
-              <li key={i}>{ing}</li>
+      {/* Collapsible Details Section */}
+      <div
+        id={`recipe-details-${recipe.name.replace(/\s/g, '-')}`}
+        className={`px-6 pb-6 pt-0 ${
+          showDetails ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+        } overflow-hidden transition-all duration-500 ease-in-out`}
+      >
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h4 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+            <FiList className="mr-3 text-purple-600 dark:text-purple-300" /> Ingredients
+          </h4>
+          <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base marker:text-purple-500">
+            {recipe.ingredients.map((ingredient, i) => (
+              <li key={i}>{ingredient}</li>
             ))}
           </ul>
-        </div>
-        <div>
-          <h4 className="text-sm font-medium">Steps</h4>
-          <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+
+          <h4 className="text-2xl font-bold text-gray-800 dark:text-white mt-8 mb-4 flex items-center">
+            <FiMenu className="mr-3 text-purple-600 dark:text-purple-300" /> Instructions
+          </h4>
+          <div className="text-gray-700 dark:text-gray-300 text-base">
             {Array.isArray(recipe.steps) ? (
-              <ol className="list-decimal list-inside">
-                {recipe.steps.map((s, i) => <li key={i}>{s}</li>)}
+              <ol className="list-decimal list-inside space-y-3 marker:text-purple-500 marker:font-semibold">
+                {recipe.steps.map((step, i) => <li key={i} className="leading-relaxed">{step}</li>)}
               </ol>
             ) : (
-              <p>{recipe.steps}</p>
+              <p className="leading-relaxed">{recipe.steps}</p>
             )}
           </div>
         </div>

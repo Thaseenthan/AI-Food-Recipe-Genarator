@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { uploadImage } from "../api";
+import { FiUploadCloud, FiRefreshCcw, FiXCircle, FiCheckCircle, FiBookOpen } from "react-icons/fi"; // Importing icons
 
 interface Props {
   onResult: (recipes: any[]) => void;
@@ -14,18 +15,35 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent default browser behavior
     const f = e.dataTransfer.files?.[0];
-    if (f) handleFile(f);
+    if (f && f.type.startsWith("image/")) { // Ensure it's an image
+      handleFile(f);
+    } else {
+      alert("Only image files are allowed.");
+    }
+  }, []);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent default browser behavior
   }, []);
 
   const handleFile = (f: File) => {
+    if (preview) URL.revokeObjectURL(preview); // Clean up previous preview URL
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    setProgress(0); // Reset progress on new file selection
   };
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) handleFile(f);
+    if (f && f.type.startsWith("image/")) {
+      handleFile(f);
+    } else {
+      if (f) alert("Only image files are allowed.");
+      e.target.value = ""; // Clear the input if not an image
+    }
   };
 
   const handleGenerate = async () => {
@@ -34,7 +52,6 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
     setProgress(0);
     try {
       const data = await uploadImage(file, (p) => setProgress(p));
-      // normalize response
       const recipes = data.recipes ?? (Array.isArray(data) ? data : []);
       onResult(recipes);
     } catch (err: any) {
@@ -47,22 +64,31 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
 
   const clear = () => {
     setFile(null);
+    if (preview) URL.revokeObjectURL(preview); // Revoke the object URL
     setPreview(null);
     setProgress(0);
+    setLoading(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
-    <section className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-6 grid md:grid-cols-2 gap-6">
+    <section className="bg-white dark:bg-gray-900 shadow-2xl rounded-3xl p-8 flex flex-col md:flex-row gap-8 max-w-7xl mx-auto my-8">
+      {/* Upload Area (2/3 width on medium screens and up) */}
       <div
         onDrop={onDrop}
-        onDragOver={(e) => e.preventDefault()}
-        className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4"
+        onDragOver={onDragOver}
+        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-gray-800 rounded-2xl md:w-2/3 transition-all duration-300 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-inner"
       >
         <div className="w-full text-center">
-          <div className="text-3xl">📸</div>
-          <h3 className="mt-2 text-lg font-semibold">Upload a food photo</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Drag & drop or click to choose a photo. We’ll detect ingredients and suggest recipes.</p>
+          <FiUploadCloud className="mx-auto text-6xl text-purple-500 dark:text-purple-400" />
+          <h3 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">
+            Upload your Ingredients Photo
+          </h3>
+          <p className="text-md text-gray-600 dark:text-gray-400 mt-2">
+            Drag & drop your image here, or click to browse.
+            <br />
+            We'll work our magic to find recipes!
+          </p>
         </div>
 
         <input
@@ -71,39 +97,112 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
           onChange={handleSelect}
           type="file"
           accept="image/*"
-          className="mt-4"
+          className="hidden" // Hide the default input
+          id="file-upload"
         />
+        {!preview && (
+          <label
+            htmlFor="file-upload"
+            className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex items-center gap-2"
+          >
+            <FiUploadCloud className="text-xl" /> Browse File
+          </label>
+        )}
 
         {preview && (
-          <div className="mt-4 w-full flex flex-col items-center">
-            <img src={preview} alt="preview" className="max-h-40 rounded-md shadow-sm" />
-            <div className="w-full mt-3">
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div style={{ width: `${progress}%` }} className="h-full bg-green-500 transition-all" />
+          <div className="mt-8 w-full flex flex-col items-center p-4 bg-white dark:bg-gray-700 rounded-xl shadow-md">
+            <img
+              src={preview}
+              alt="Uploaded food preview"
+              className="max-h-60 h-auto w-auto object-contain rounded-lg shadow-sm border border-gray-200 dark:border-gray-600"
+            />
+            <div className="w-full mt-5">
+              <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                <div
+                  style={{ width: `${progress}%` }}
+                  className={`h-full ${
+                    progress === 100 ? "bg-green-500" : "bg-purple-500"
+                  } transition-all duration-300 ease-out`}
+                />
               </div>
-              <div className="text-xs text-gray-500 mt-1">{progress}% uploaded</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 mt-2 text-center">
+                {progress === 100 ? (
+                  <span className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
+                    <FiCheckCircle /> Upload Completed!
+                  </span>
+                ) : (
+                  `${progress}% Uploaded`
+                )}
+              </div>
             </div>
-            <div className="mt-3 flex gap-2">
-              <button onClick={handleGenerate} disabled={loading} className="px-4 py-2 bg-green-600 text-white rounded-md">
-                {loading ? "Processing..." : "Generate Recipes"}
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <button
+                onClick={handleGenerate}
+                disabled={loading}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <FiRefreshCcw className="animate-spin" /> Processing...
+                  </>
+                ) : (
+                  <>
+                    <FiBookOpen /> Generate Recipes
+                  </>
+                )}
               </button>
-              <button onClick={clear} className="px-4 py-2 border rounded-md">Clear</button>
+              <button
+                onClick={clear}
+                className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+              >
+                <FiXCircle /> Clear
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-4">
-        <h4 className="font-semibold">Tips for best results</h4>
-        <ul className="mt-3 list-disc list-inside text-sm text-gray-600 dark:text-gray-300">
-          <li>Use a close-up photo of the ingredients or dish.</li>
-          <li>Avoid cluttered backgrounds for better detection.</li>
-          <li>Try different angles if results are noisy — more photos can help.</li>
-        </ul>
+      {/* Tips Section (1/3 width on medium screens and up) */}
+      <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl md:w-1/3 flex flex-col justify-between">
+        <div>
+          <h4 className="font-extrabold text-2xl text-gray-800 dark:text-white mb-4">
+            Tips for Best Results
+          </h4>
+          <ul className="mt-3 space-y-3 text-base text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <FiCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+              <span>
+                Clear, Close-Up Photos: Focus directly on the ingredients.
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <FiCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+              <span>
+                Minimal Background Clutter:A plain background helps our AI detect items accurately.
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <FiCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+              <span>
+                Good Lighting: Natural, even lighting works best. Avoid harsh shadows.
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <FiCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+              <span>
+                The Ingredients Group per Photo: For complex meals, focus on key components.
+              </span>
+            </li>
+          </ul>
+        </div>
 
-        <div className="mt-6 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-          <h5 className="font-medium">What we do</h5>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">We detect ingredients in the image, then ask an AI chef to suggest 2–3 recipes with steps, ingredients and time estimates. Results are returned as structured JSON and shown below.</p>
+        <div className="mt-8 bg-purple-100 dark:bg-gray-700 p-5 rounded-xl shadow-inner border border-purple-200 dark:border-gray-600">
+          <h5 className="font-bold text-lg text-gray-800 dark:text-white">How It Works</h5>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+            We use advanced AI to identify ingredients in your photo. Then, our AI chef crafts
+            some unique recipes, complete with steps, estimated times, and a full ingredient list,
+            delivered as structured JSON.
+          </p>
         </div>
       </div>
     </section>

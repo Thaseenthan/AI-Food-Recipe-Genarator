@@ -98,7 +98,7 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
 
         {/* Recipe Title and Time */}
         <div className="flex-grow">
-          <h3 className="text-3xl font-extrabold text-purple-700 dark:text-purple-400">
+          <h3 className="text-3xl font-extrabold text-green-700 dark:text-green-400">
             {recipe.name}
           </h3>
           <p className="flex items-center text-gray-600 dark:text-gray-300 mt-2 text-md">
@@ -137,7 +137,7 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
             <button
               onClick={handleSave}
               title="Save to Favorites"
-              className="px-4 py-2 bg-purple-600 text-white rounded-full font-medium shadow-sm hover:bg-purple-700 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-green-600 text-white rounded-full font-medium shadow-sm hover:bg-green-700 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
               disabled={isSaving || hasBeenSaved} // Disable save if currently saving or already saved
             >
               {isSaving ? <FiRefreshCcw className="animate-spin" /> : <FiSave />} {isSaving ? "Saving..." : "Save"}
@@ -148,7 +148,7 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
         {/* Expand/Collapse Button */}
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="ml-0 mt-4 sm:mt-0 sm:ml-4 p-3 rounded-full bg-purple-100 dark:bg-gray-700 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-sm"
+          className="ml-0 mt-4 sm:mt-0 sm:ml-4 p-3 rounded-full bg-green-100 dark:bg-gray-700 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-sm"
           aria-expanded={showDetails}
           aria-controls={`recipe-details-${recipe.name.replace(/\s/g, '-')}`}
         >
@@ -165,20 +165,20 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
       >
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <h4 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-            <FiList className="mr-3 text-purple-600 dark:text-purple-300" /> Ingredients
+            <FiList className="mr-3 text-green-600 dark:text-green-300" /> Ingredients
           </h4>
-          <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base marker:text-purple-500">
+          <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base marker:text-green-500">
             {recipe.ingredients.map((ingredient, i) => (
               <li key={i}>{ingredient}</li>
             ))}
           </ul>
 
           <h4 className="text-2xl font-bold text-gray-800 dark:text-white mt-8 mb-4 flex items-center">
-            <FiMenu className="mr-3 text-purple-600 dark:text-purple-300" /> Instructions
+            <FiMenu className="mr-3 text-green-600 dark:text-green-300" /> Instructions
           </h4>
           <div className="text-gray-700 dark:text-gray-300 text-base">
             {Array.isArray(recipe.steps) ? (
-              <ol className="list-decimal list-inside space-y-3 marker:text-purple-500 marker:font-semibold">
+              <ol className="list-decimal list-inside space-y-3 marker:text-green-500 marker:font-semibold">
                 {recipe.steps.map((step, i) => <li key={i} className="leading-relaxed">{step}</li>)}
               </ol>
             ) : (

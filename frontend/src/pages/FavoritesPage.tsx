@@ -32,7 +32,7 @@ const FavoritesPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 space-y-12 min-h-[calc(100vh-100px)]"> {/* Added container, padding, and min-height */}
       <header className="text-center mb-12">
-        <h1 className="text-5xl font-extrabold text-green-500 dark:text-red-400 leading-tight flex items-center justify-center gap-4">
+        <h1 className="text-5xl font-extrabold text-green-500 dark:text-white leading-tight flex items-center justify-center gap-4">
           <FiHeart className="text-4xl" /> My Favorite Recipes
         </h1>
         <p className="text-lg text-gray-700 dark:text-gray-300 mt-4 max-w-2xl mx-auto">
@@ -44,7 +44,7 @@ const FavoritesPage: React.FC = () => {
         {loading && (
           <div className="flex justify-center items-center p-12 bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-inner animate-pulse">
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 border-4 border-dashed rounded-full border-purple-400 dark:border-purple-300 animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-dashed rounded-full border-green-400 dark:border-green-300 animate-spin"></div>
               <p className="mt-4 text-xl font-medium text-gray-600 dark:text-gray-300">Loading your delicious favorites...</p>
             </div>
           </div>
@@ -58,8 +58,8 @@ const FavoritesPage: React.FC = () => {
         )}
 
         {!loading && !error && recipes.length === 0 && (
-          <div className="p-12 bg-purple-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-purple-200 dark:border-gray-700 text-center text-xl font-medium text-gray-600 dark:text-gray-400 animate-fadeInUp shadow-inner">
-            <FiHeart className="mx-auto text-5xl text-purple-500 dark:text-purple-300 mb-4" />
+          <div className="p-12 bg-green-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-green-200 dark:border-gray-700 text-center text-xl font-medium text-gray-600 dark:text-gray-400 animate-fadeInUp shadow-inner">
+            <FiHeart className="mx-auto text-5xl text-green-500 dark:text-green-300 mb-4" />
             <p className="mb-4">It looks like you haven't saved any favorite recipes yet.</p>
             <p>Go to the Home page, generate some amazing recipes, and click "Save" to add them here!</p>
           </div>

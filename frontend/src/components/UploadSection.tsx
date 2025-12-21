@@ -77,10 +77,10 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
       <div
         onDrop={onDrop}
         onDragOver={onDragOver}
-        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-gray-800 rounded-2xl md:w-2/3 transition-all duration-300 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-inner"
+        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-green-300 dark:border-green-700 bg-green-50 dark:bg-gray-800 rounded-2xl md:w-2/3 transition-all duration-300 hover:border-green-500 dark:hover:border-green-500 hover:shadow-inner"
       >
         <div className="w-full text-center">
-          <FiUploadCloud className="mx-auto text-6xl text-purple-500 dark:text-purple-400" />
+          <FiUploadCloud className="mx-auto text-6xl text-green-500 dark:text-green-400" />
           <h3 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">
             Upload your Ingredients Photo
           </h3>
@@ -103,7 +103,7 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
         {!preview && (
           <label
             htmlFor="file-upload"
-            className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex items-center gap-2"
+            className="mt-6 px-8 py-3 bg-gradient-to-r from-green-600 to-indigo-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex items-center gap-2"
           >
             <FiUploadCloud className="text-xl" /> Browse File
           </label>
@@ -121,7 +121,7 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
                 <div
                   style={{ width: `${progress}%` }}
                   className={`h-full ${
-                    progress === 100 ? "bg-green-500" : "bg-purple-500"
+                    progress === 100 ? "bg-green-500" : "bg-green-500"
                   } transition-all duration-300 ease-out`}
                 />
               </div>
@@ -196,7 +196,7 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
           </ul>
         </div>
 
-        <div className="mt-8 bg-purple-100 dark:bg-gray-700 p-5 rounded-xl shadow-inner border border-purple-200 dark:border-gray-600">
+        <div className="mt-8 bg-green-100 dark:bg-gray-700 p-5 rounded-xl shadow-inner border border-green-200 dark:border-gray-600">
           <h5 className="font-bold text-lg text-gray-800 dark:text-white">How It Works</h5>
           <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
             We use advanced AI to identify ingredients in your photo. Then, our AI chef crafts

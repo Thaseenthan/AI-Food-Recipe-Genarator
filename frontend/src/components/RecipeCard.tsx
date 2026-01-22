@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react"; // Import useEffect
-import { saveFavorite, removeFavorite } from "../api";
+// import { saveFavorite, removeFavorite } from "../api"; // COMMENTED OUT: Supabase favorites feature
 import { FiClock, FiList, FiMenu, FiChevronDown, FiChevronUp, FiHeart, FiCopy, FiTrash2, FiSave, FiStar, FiRefreshCcw, FiCheckCircle } from "react-icons/fi";
 
 type Recipe = {
-  _id?: string; // Present if it's a saved favorite
+  id?: string; // Present if it's a saved favorite
   name: string;
   ingredients: string[];
   steps: string | string[];
@@ -25,43 +25,46 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
   const [isRemoving, setIsRemoving] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   // New state to track if the recipe has been saved in the current session
-  const [hasBeenSaved, setHasBeenSaved] = useState(isInitiallyFavorited || !!recipe._id);
+  const [hasBeenSaved, setHasBeenSaved] = useState(isInitiallyFavorited || !!recipe.id);
 
-  // Use useEffect to update hasBeenSaved if the recipe._id changes (e.g., after a successful save)
+  // Use useEffect to update hasBeenSaved if the recipe.id changes (e.g., after a successful save)
   useEffect(() => {
-    setHasBeenSaved(isInitiallyFavorited || !!recipe._id);
-  }, [recipe._id, isInitiallyFavorited]);
+    setHasBeenSaved(isInitiallyFavorited || !!recipe.id);
+  }, [recipe.id, isInitiallyFavorited]);
 
 
+  // COMMENTED OUT: Supabase favorites feature
   const handleSave = async () => {
-    if (hasBeenSaved || isSaving) return; // Prevent multiple saves or clicking while saving
-    setIsSaving(true);
-    try {
-      await saveFavorite(recipe);
-      setHasBeenSaved(true); // Mark as saved successfully
-      alert("Recipe saved to your favorites!");
-    } catch (err) {
-      console.error("Failed to save favorite:", err);
-      alert("Failed to save recipe to favorites. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
+    alert("Save feature is currently disabled. Enable Supabase to use this feature.");
+    // if (hasBeenSaved || isSaving) return; // Prevent multiple saves or clicking while saving
+    // setIsSaving(true);
+    // try {
+    //   await saveFavorite(recipe);
+    //   setHasBeenSaved(true); // Mark as saved successfully
+    //   alert("Recipe saved to your favorites!");
+    // } catch (err) {
+    //   console.error("Failed to save favorite:", err);
+    //   alert("Failed to save recipe to favorites. Please try again.");
+    // } finally {
+    //   setIsSaving(false);
+    // }
   };
 
   const handleRemove = async () => {
-    if (!recipe._id || isRemoving) return; // Prevent multiple removes or clicking while removing
-    setIsRemoving(true);
-    try {
-      await removeFavorite(recipe._id);
-      setHasBeenSaved(false); // Mark as unsaved
-      onRemove && onRemove(recipe._id); // Inform parent to update UI
-      alert("Recipe removed from favorites!");
-    } catch (e) {
-      console.error("Failed to remove favorite:", e);
-      alert("Failed to remove recipe from favorites. Please try again.");
-    } finally {
-      setIsRemoving(false);
-    }
+    alert("Remove feature is currently disabled. Enable Supabase to use this feature.");
+    // if (!recipe.id || isRemoving) return; // Prevent multiple removes or clicking while removing
+    // setIsRemoving(true);
+    // try {
+    //   await removeFavorite(recipe.id);
+    //   setHasBeenSaved(false); // Mark as unsaved
+    //   onRemove && onRemove(recipe.id); // Inform parent to update UI
+    //   alert("Recipe removed from favorites!");
+    // } catch (e) {
+    //   console.error("Failed to remove favorite:", e);
+    //   alert("Failed to remove recipe from favorites. Please try again.");
+    // } finally {
+    //   setIsRemoving(false);
+    // }
   };
 
   const handleCopy = async () => {
@@ -123,13 +126,13 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
             {isCopied ? <FiCheckCircle /> : <FiCopy />} {isCopied ? "Copied!" : "Copy"}
           </button>
 
-          {/* Save/Remove Button */}
-          {recipe._id || hasBeenSaved ? ( // If recipe has an _id OR has been saved in this session, show Remove/Saved
+          {/* COMMENTED OUT: Save/Remove Buttons (Supabase favorites feature disabled) */}
+          {/* {recipe.id || hasBeenSaved ? ( // If recipe has an id OR has been saved in this session, show Remove/Saved
             <button
               onClick={handleRemove}
               title="Remove from Favorites"
               className="px-4 py-2 bg-red-600 text-white rounded-full font-medium shadow-sm hover:bg-red-700 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
-              disabled={isRemoving || !recipe._id} // Disable remove if currently removing or no _id (not truly saved)
+              disabled={isRemoving || !recipe.id} // Disable remove if currently removing or no id (not truly saved)
             >
               {isRemoving ? <FiRefreshCcw className="animate-spin" /> : <FiTrash2 />} {isRemoving ? "Removing..." : "Remove"}
             </button>
@@ -142,7 +145,7 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
             >
               {isSaving ? <FiRefreshCcw className="animate-spin" /> : <FiSave />} {isSaving ? "Saving..." : "Save"}
             </button>
-          )}
+          )} */}
         </div>
 
         {/* Expand/Collapse Button */}
@@ -159,9 +162,9 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
       {/* Collapsible Details Section */}
       <div
         id={`recipe-details-${recipe.name.replace(/\s/g, '-')}`}
-        className={`px-6 pb-6 pt-0 ${
-          showDetails ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-        } overflow-hidden transition-all duration-500 ease-in-out`}
+        className={`px-6 pb-6 pt-0 transition-all duration-500 ease-in-out ${
+          showDetails ? "max-h-none opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        }`}
       >
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <h4 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">

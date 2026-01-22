@@ -4,9 +4,10 @@ import { FiUploadCloud, FiRefreshCcw, FiXCircle, FiCheckCircle, FiBookOpen } fro
 
 interface Props {
   onResult: (recipes: any[]) => void;
+  onClear?: () => void;
 }
 
-const UploadSection: React.FC<Props> = ({ onResult }) => {
+const UploadSection: React.FC<Props> = ({ onResult, onClear }) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
@@ -69,6 +70,8 @@ const UploadSection: React.FC<Props> = ({ onResult }) => {
     setProgress(0);
     setLoading(false);
     if (inputRef.current) inputRef.current.value = "";
+    // Clear recipes from parent component
+    if (onClear) onClear();
   };
 
   return (

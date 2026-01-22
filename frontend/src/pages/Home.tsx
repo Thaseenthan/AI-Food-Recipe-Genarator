@@ -6,13 +6,17 @@ import RecipeCard from "../components/RecipeCard";
 const Home: React.FC = () => {
   const [recipes, setRecipes] = useState<any[]>([]);
 
+  const handleClearRecipes = () => {
+    setRecipes([]);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-12 ">
       {/* --- Header Section --- */}
       <header className="relative text-center mb-12">
         {/* Favourites link at top-right */}
         
-        <div className="absolute top-0 right-0 z-0 mt-0 mr-4">
+        {/* <div className="absolute top-0 right-0 z-0 mt-0 mr-4">
           <Link
             to="/favorites"
             className="relative inline-flex items-center justify-center text-lg font-semibold text-white bg-gray-200 hover:bg-gray-300 px-3 py-3 rounded-full shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-green-500/50 focus:outline-none focus:ring-4 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-white"
@@ -22,7 +26,7 @@ const Home: React.FC = () => {
             </span>
             
           </Link>
-        </div>
+        </div> */}
         <div className="pt-10">
           <h1 className="text-5xl font-extrabold text-green-700 dark:text-green-400 leading-tight p-8">
             Your Personal AI Recipe Creator
@@ -37,7 +41,7 @@ const Home: React.FC = () => {
       </header>
 
       {/* --- Upload Section --- */}
-      <UploadSection onResult={(r) => setRecipes(r)} />
+      <UploadSection onResult={(r) => setRecipes(r)} onClear={handleClearRecipes} />
 
       {/* --- Recipes Section --- */}
       <section className="mt-16">

@@ -2,7 +2,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import FavoritesPage from "./pages/FavoritesPage";
+// import FavoritesPage from "./pages/FavoritesPage"; // COMMENTED OUT: Supabase favorites feature
 import Navbar from "./components/Navbar";
 
 const App: React.FC = () => {
@@ -13,7 +13,7 @@ const App: React.FC = () => {
         <main className="max-w-6xl mx-auto px-4 py-8">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
+            {/* <Route path="/favorites" element={<FavoritesPage />} /> */} {/* COMMENTED OUT: Supabase favorites feature */}
           </Routes>
         </main>
       </div>

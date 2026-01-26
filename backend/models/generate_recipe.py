@@ -50,7 +50,7 @@ def generate_recipe(ingredients):
     """
 
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
 
         # Always extract plain text safely

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 // import { saveFavorite, removeFavorite } from "../api"; // COMMENTED OUT: Supabase favorites feature
 import { FiClock, FiChevronDown, FiChevronUp, FiCopy, FiCheckCircle, FiList } from "react-icons/fi";
 

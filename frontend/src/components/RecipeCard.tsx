@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react"; // Import useEffect
+import React, { useState, useEffect } from "react";
 // import { saveFavorite, removeFavorite } from "../api"; // COMMENTED OUT: Supabase favorites feature
-import { FiClock, FiList, FiMenu, FiChevronDown, FiChevronUp, FiHeart, FiCopy, FiTrash2, FiSave, FiStar, FiRefreshCcw, FiCheckCircle } from "react-icons/fi";
+import { FiClock, FiChevronDown, FiChevronUp, FiCopy, FiCheckCircle, FiList } from "react-icons/fi";
 
 type Recipe = {
   id?: string; // Present if it's a saved favorite
@@ -14,58 +14,12 @@ type Recipe = {
 interface Props {
   recipe: Recipe;
   onRemove?: (id: string) => void;
-  // Optional prop to indicate if the recipe is already a favorite from a parent component (e.g., FavoritesPage)
-  // This is crucial for initial state if the card is used outside of the FavoritesPage
   isInitiallyFavorited?: boolean;
 }
 
-const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = false }) => {
+const RecipeCard: React.FC<Props> = ({ recipe }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  // New state to track if the recipe has been saved in the current session
-  const [hasBeenSaved, setHasBeenSaved] = useState(isInitiallyFavorited || !!recipe.id);
-
-  // Use useEffect to update hasBeenSaved if the recipe.id changes (e.g., after a successful save)
-  useEffect(() => {
-    setHasBeenSaved(isInitiallyFavorited || !!recipe.id);
-  }, [recipe.id, isInitiallyFavorited]);
-
-
-  // COMMENTED OUT: Supabase favorites feature
-  const handleSave = async () => {
-    alert("Save feature is currently disabled. Enable Supabase to use this feature.");
-    // if (hasBeenSaved || isSaving) return; // Prevent multiple saves or clicking while saving
-    // setIsSaving(true);
-    // try {
-    //   await saveFavorite(recipe);
-    //   setHasBeenSaved(true); // Mark as saved successfully
-    //   alert("Recipe saved to your favorites!");
-    // } catch (err) {
-    //   console.error("Failed to save favorite:", err);
-    //   alert("Failed to save recipe to favorites. Please try again.");
-    // } finally {
-    //   setIsSaving(false);
-    // }
-  };
-
-  const handleRemove = async () => {
-    alert("Remove feature is currently disabled. Enable Supabase to use this feature.");
-    // if (!recipe.id || isRemoving) return; // Prevent multiple removes or clicking while removing
-    // setIsRemoving(true);
-    // try {
-    //   await removeFavorite(recipe.id);
-    //   setHasBeenSaved(false); // Mark as unsaved
-    //   onRemove && onRemove(recipe.id); // Inform parent to update UI
-    //   alert("Recipe removed from favorites!");
-    // } catch (e) {
-    //   console.error("Failed to remove favorite:", e);
-    //   alert("Failed to remove recipe from favorites. Please try again.");
-    // } finally {
-    //   setIsRemoving(false);
-    // }
-  };
 
   const handleCopy = async () => {
     try {
@@ -177,7 +131,7 @@ const RecipeCard: React.FC<Props> = ({ recipe, onRemove, isInitiallyFavorited = 
           </ul>
 
           <h4 className="text-2xl font-bold text-gray-800 dark:text-white mt-8 mb-4 flex items-center">
-            <FiMenu className="mr-3 text-green-600 dark:text-green-300" /> Instructions
+            Instructions
           </h4>
           <div className="text-gray-700 dark:text-gray-300 text-base">
             {Array.isArray(recipe.steps) ? (

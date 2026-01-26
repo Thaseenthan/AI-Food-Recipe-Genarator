@@ -4,14 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 import uuid
-from datetime import datetime
 from models.detect_ingredients import detect_ingredients
 from models.generate_recipe import generate_recipe
-from database.db_config import supabase
 from dotenv import load_dotenv
 
 load_dotenv()
-SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "recipe-images")
 
 app = FastAPI()
 app.add_middleware(
@@ -38,32 +35,15 @@ async def upload_image(file: UploadFile = File(...)):
         file_content = await file.read()
         print(f"📁 File read: {len(file_content)} bytes")
         
-        # Save locally first
+        # Save locally
         local_path = f"static/uploads/{unique_filename}"
         os.makedirs("static/uploads", exist_ok=True)
         with open(local_path, "wb") as buffer:
             buffer.write(file_content)
         print(f"💾 Saved locally: {local_path}")
         
-        # Try to upload to Supabase Storage
-        public_url = None
-        try:
-            print(f"☁️ Uploading to Supabase Storage bucket: {SUPABASE_BUCKET}")
-            storage_response = supabase.storage.from_(SUPABASE_BUCKET).upload(
-                unique_filename,
-                file_content,
-                {"content-type": file.content_type}
-            )
-            print(f"✅ Uploaded to Supabase Storage")
-            
-            # Get public URL
-            public_url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(unique_filename)
-            print(f"🔗 Public URL: {public_url}")
-        except Exception as upload_error:
-            print(f"⚠️ Supabase upload failed: {str(upload_error)}")
-            print(f"📝 Using local file path as fallback")
-            # Use local path as fallback
-            public_url = f"/static/uploads/{unique_filename}"
+        # Generate public URL for local file
+        image_url = f"/static/uploads/{unique_filename}"
         
         # Detect ingredients
         print(f"🔍 Detecting ingredients...")
@@ -93,7 +73,7 @@ async def upload_image(file: UploadFile = File(...)):
             "recipes": recipes, 
             "raw": raw, 
             "error": error,
-            "image_url": public_url
+            "image_url": image_url
         }
     except Exception as e:
         print(f"❌ ERROR in upload endpoint: {str(e)}")
